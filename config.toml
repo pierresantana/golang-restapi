@@ -1,2 +1,0 @@
-server="mongodb://localhost"
-database="golang_bench"

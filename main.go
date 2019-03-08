@@ -4,33 +4,45 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
-	"github.com/gorilla/mux"
-	. "github.com/pierresantana/golang-restapi/config"
+	controller "github.com/pierresantana/golang-restapi/controllers"
 	. "github.com/pierresantana/golang-restapi/dao"
-	productrouter "github.com/pierresantana/golang-restapi/router"
+)
+
+const (
+	dbUrl  = "DB_URL"
+	dbName = "DB_NAME"
 )
 
 var dao = ProductsDAO{}
-var config = Config{}
 
 func init() {
-	config.Read()
-
-	dao.Server = config.Server
-	dao.Database = config.Database
+	config := dbConfig()
+	dao.Server = config[dbUrl]
+	dao.Database = config[dbName]
 	dao.Connect()
 }
 
-func main() {
-	r := mux.NewRouter()
-	r.HandleFunc("/products", productrouter.GetAll).Methods("GET")
-	r.HandleFunc("/products/{id}", productrouter.GetByID).Methods("GET")
-	r.HandleFunc("/products", productrouter.Create).Methods("POST")
-	r.HandleFunc("/products/{id}", productrouter.Update).Methods("PUT")
-	r.HandleFunc("/products/{id}", productrouter.Delete).Methods("DELETE")
+func dbConfig() map[string]string {
+	conf := make(map[string]string)
+	url, ok := os.LookupEnv(dbUrl)
+	if !ok {
+		panic("DB_URL environment variable required but not set")
+	}
+	name, ok := os.LookupEnv(dbName)
+	if !ok {
+		panic("DB_NAME environment variable required but not set")
+	}
+	conf[dbUrl] = url
+	conf[dbName] = name
+	return conf
+}
 
-	var port = ":8080"
+func main() {
+	r := controller.Route()
+
+	var port = ":3000"
 	fmt.Println("Server running in port:", port)
 	log.Fatal(http.ListenAndServe(port, r))
 }

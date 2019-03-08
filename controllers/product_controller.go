@@ -1,4 +1,4 @@
-package productrouter
+package controller
 
 import (
 	"encoding/json"
@@ -23,7 +23,7 @@ func respondWithJson(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
-func GetAll(w http.ResponseWriter, r *http.Request) {
+func ProductGetAll(w http.ResponseWriter, r *http.Request) {
 	products, err := dao.GetAll()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -32,7 +32,7 @@ func GetAll(w http.ResponseWriter, r *http.Request) {
 	respondWithJson(w, http.StatusOK, products)
 }
 
-func GetByID(w http.ResponseWriter, r *http.Request) {
+func ProductGetByID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	product, err := dao.GetByID(params["id"])
 	if err != nil {
@@ -42,7 +42,7 @@ func GetByID(w http.ResponseWriter, r *http.Request) {
 	respondWithJson(w, http.StatusOK, product)
 }
 
-func Create(w http.ResponseWriter, r *http.Request) {
+func ProductCreate(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var product Product
 	if err := json.NewDecoder(r.Body).Decode(&product); err != nil {
@@ -57,7 +57,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	respondWithJson(w, http.StatusCreated, product)
 }
 
-func Update(w http.ResponseWriter, r *http.Request) {
+func ProductUpdate(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	params := mux.Vars(r)
 	var product Product
@@ -72,7 +72,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	respondWithJson(w, http.StatusOK, map[string]string{"result": product.Name + " atualizado com sucesso!"})
 }
 
-func Delete(w http.ResponseWriter, r *http.Request) {
+func ProductDelete(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	params := mux.Vars(r)
 	if err := dao.Delete(params["id"]); err != nil {
