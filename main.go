@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,33 +11,23 @@ import (
 	. "github.com/pierresantana/golang-restapi/dao"
 )
 
-const (
-	dbUrl  = "DB_URL"
-	dbName = "DB_NAME"
-)
+var dbURI = flag.String("dbURI", "", "URI for MongoDB instance")
+var dbName = flag.String("dbName", "", "MongoDB database name")
 
 var dao = ProductsDAO{}
 
 func init() {
-	config := dbConfig()
-	dao.Server = config[dbUrl]
-	dao.Database = config[dbName]
-	dao.Connect()
-}
+	fmt.Println("Golang Rest API")
+	flag.Parse()
 
-func dbConfig() map[string]string {
-	conf := make(map[string]string)
-	url, ok := os.LookupEnv(dbUrl)
-	if !ok {
-		panic("DB_URL environment variable required but not set")
+	if *dbURI == "" || *dbName == "" {
+		flag.PrintDefaults()
+		os.Exit(0)
 	}
-	name, ok := os.LookupEnv(dbName)
-	if !ok {
-		panic("DB_NAME environment variable required but not set")
-	}
-	conf[dbUrl] = url
-	conf[dbName] = name
-	return conf
+
+	dao.Server = *dbURI
+	dao.Database = *dbName
+	dao.Connect()
 }
 
 func main() {

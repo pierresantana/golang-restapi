@@ -29,6 +29,9 @@ func ProductGetAll(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+	if products == nil {
+		products = []Product{}
+	}
 	respondWithJson(w, http.StatusOK, products)
 }
 
@@ -65,11 +68,12 @@ func ProductUpdate(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
+	product.ID = bson.ObjectIdHex(params["id"])
 	if err := dao.Update(params["id"], product); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondWithJson(w, http.StatusOK, map[string]string{"result": product.Name + " atualizado com sucesso!"})
+	respondWithJson(w, http.StatusOK, product)
 }
 
 func ProductDelete(w http.ResponseWriter, r *http.Request) {
@@ -79,5 +83,5 @@ func ProductDelete(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	respondWithJson(w, http.StatusOK, map[string]string{"result": "success"})
+	w.WriteHeader(http.StatusNoContent)
 }

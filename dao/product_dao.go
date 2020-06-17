@@ -20,7 +20,6 @@ const (
 )
 
 func (m *ProductsDAO) Connect() {
-	log.Println(m.Server)
 	session, err := mgo.Dial(m.Server)
 	if err != nil {
 		log.Fatal(err)
